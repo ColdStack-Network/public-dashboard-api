@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  dashboard-api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - .:/app
+    depends_on:
+      - dashboard-api-db
+      - billing-db
+    env_file:
+      - ./.env
+
+  dashboard-api-db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DASHBOARD_API_DB_USERNAME}
+      POSTGRES_PASSWORD: ${DASHBOARD_API_DB_PASSWORD}
+      POSTGRES_DB: ${DASHBOARD_API_DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./.pgdata/dashboardApiDb:/var/lib/postgresql/data/pgdata
+    command: -p ${DASHBOARD_API_DB_PORT}
+    ports:
+      - ${DASHBOARD_API_DB_PORT}:${DASHBOARD_API_DB_PORT}
+
+  billing-db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${BILLING_DB_USERNAME}
+      POSTGRES_PASSWORD: ${BILLING_DB_PASSWORD}
+      POSTGRES_DB: ${BILLING_DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./.pgdata/billingDb:/var/lib/postgresql/data/pgdata
+    command: -p ${BILLING_DB_PORT}
+    ports:
+      - ${BILLING_DB_PORT}:${BILLING_DB_PORT}
